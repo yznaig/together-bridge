@@ -1,0 +1,3 @@
+# A bridge carries arbitrary shared files — never let git alter their bytes
+# (no line-ending normalization, no text munging). Treat everything as binary.
+* -text

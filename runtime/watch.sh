@@ -1,28 +1,31 @@
 #!/usr/bin/env bash
-# watch — auto-push: when files in shared/ change, commit & push.
+# watch — auto-push: when files in the bridge's shared/ change, commit & push.
+#
+# SECURITY: this runs from the LOCAL runtime dir (~/.together-bridge/<name>/),
+# installed from the trusted tool — NEVER from inside the synced bridge. So no
+# file a counterparty pushes can alter the code that executes on your machine.
 # Zero dependencies (git + bash). Debounced by poll interval. Quiet when idle.
 set -uo pipefail
-BRIDGE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BRIDGE="$(cat "$SELF/bridge.path" 2>/dev/null || true)"
+[ -n "$BRIDGE" ] && [ -d "$BRIDGE" ] || { echo "bridge path missing/invalid ($SELF/bridge.path)"; exit 1; }
 cd "$BRIDGE"
 INTERVAL="${BRIDGE_WATCH_INTERVAL:-4}"
+PIDF="$SELF/.watch.pid"
 
 # don't start a second watcher
-if [ -f "$BRIDGE/.watch.pid" ] && kill -0 "$(cat "$BRIDGE/.watch.pid" 2>/dev/null)" 2>/dev/null; then
-  echo "Watcher already running (pid $(cat "$BRIDGE/.watch.pid"))."
-  exit 0
+if [ -f "$PIDF" ] && kill -0 "$(cat "$PIDF" 2>/dev/null)" 2>/dev/null; then
+  echo "Watcher already running (pid $(cat "$PIDF"))."; exit 0
 fi
-echo $$ > "$BRIDGE/.watch.pid"
-# EXIT cleans up the pidfile; INT/TERM must actually exit (which then fires EXIT).
-# Without the explicit `exit`, a TERM trap that only rm's the pidfile lets the
-# loop keep running — orphaning the watcher and defeating clear.sh's kill.
-trap 'rm -f "$BRIDGE/.watch.pid"' EXIT
+echo $$ > "$PIDF"
+trap 'rm -f "$PIDF"' EXIT
 trap 'exit 0' INT TERM
 
-# fallback identity so commits work even if git user.name/email aren't configured
+# fallback identity so commits work even if git user.name/email aren't set
 git config user.name  >/dev/null 2>&1 || git config user.name  "${USER:-bridge-user}"
 git config user.email >/dev/null 2>&1 || git config user.email "bridge@local"
 
-echo "👀 Watching shared/ — auto-push every ${INTERVAL}s when it changes. Ctrl-C to stop."
+echo "👀 Watching $BRIDGE/shared — auto-push every ${INTERVAL}s when it changes. Ctrl-C to stop."
 while true; do
   if [ -n "$(git status --porcelain shared/ 2>/dev/null)" ]; then
     sleep "$INTERVAL"                         # let a burst of files settle (debounce)

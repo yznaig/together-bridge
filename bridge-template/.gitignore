@@ -14,9 +14,7 @@ credentials.*
 .aws/
 .ssh/
 
-# --- runtime / noise ---
-.watch.pid
-.watch.log
-node_modules/
+# --- noise ---
 .DS_Store
 Thumbs.db
+node_modules/
