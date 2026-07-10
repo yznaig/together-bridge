@@ -1,0 +1,4 @@
+# Keep shell scripts LF on every OS so they run on Mac/Linux/WSL after checkout.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf

@@ -1,0 +1,22 @@
+# --- Together Bridge: secret guard (never sync credentials) ---
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*.secret
+*.secrets
+secrets.*
+credentials.*
+.aws/
+.ssh/
+
+# --- runtime / noise ---
+.watch.pid
+.watch.log
+node_modules/
+.DS_Store
+Thumbs.db

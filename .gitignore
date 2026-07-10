@@ -1,0 +1,10 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+
+# never commit secrets (also enforced inside each bridge)
+.env
+.env.*
+*.pem
+*.key
