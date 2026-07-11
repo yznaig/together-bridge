@@ -12,6 +12,7 @@ This file is documentation, not code.
 ## For the human
 - **Share a file:** put it in `shared/` — the local watcher auto-pushes it.
 - **Get updates:** `bash ~/.together-bridge/<repo-name>/refresh.sh`
+- **Is it syncing?:** `bash ~/.together-bridge/status.sh` (the watcher self-heals when you open a terminal)
 - **Leave:** `bash ~/.together-bridge/<repo-name>/clear.sh`
 
 (`<repo-name>` is this bridge's GitHub repo name.)

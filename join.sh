@@ -11,6 +11,7 @@ set -euo pipefail
 
 PKG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUNTIME_SRC="$PKG/runtime"
+HUB_SRC="$PKG/hub"
 
 URL=""; DEST=""
 while [ $# -gt 0 ]; do
@@ -47,16 +48,26 @@ cp "$RUNTIME_SRC"/*.sh "$RUNTIME_DIR"/
 chmod +x "$RUNTIME_DIR"/*.sh
 printf '%s\n' "$DEST" > "$RUNTIME_DIR/bridge.path"
 
+echo "🧩 Installing shared hub → $HOME/.together-bridge (status + self-heal)"
+cp "$HUB_SRC"/*.sh "$HOME/.together-bridge/"
+chmod +x "$HOME/.together-bridge"/*.sh
+
 echo "🙈 Wiring parent workspace to ignore $NAMEB/"
 touch "$PARENT/.gitignore"
 grep -qxF "$NAMEB/" "$PARENT/.gitignore" || echo "$NAMEB/" >> "$PARENT/.gitignore"
 
-echo "👀 Starting auto-push watcher (from local runtime)"
-nohup bash "$RUNTIME_DIR/watch.sh" >/dev/null 2>&1 &
+echo "👀 Starting auto-push watcher + enabling self-heal on terminal open"
+bash "$HOME/.together-bridge/ensure-watchers.sh"
+bash "$HOME/.together-bridge/hook.sh" install
 
 cat <<DONE
 
 ✅ Joined the bridge. Drop files in $DEST/shared/ to share them.
    Get updates:  bash $RUNTIME_DIR/refresh.sh
    Leave:        bash $RUNTIME_DIR/clear.sh
+   Check syncing: bash ~/.together-bridge/status.sh
+
+ℹ️  The watcher restarts itself whenever you open a terminal (self-heal). It does
+   not survive a reboot on its own, but comes back the next time you start work.
+   If status ever shows DOWN, open a new terminal or run the restart command shown.
 DONE

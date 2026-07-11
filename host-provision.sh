@@ -13,6 +13,7 @@ set -euo pipefail
 PKG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE="$PKG/bridge-template"
 RUNTIME_SRC="$PKG/runtime"
+HUB_SRC="$PKG/hub"
 TOOL_REPO="${TOGETHER_BRIDGE_TOOL_REPO:-https://github.com/yznaig/together-bridge}"
 
 NAME=""; PARTNER=""; DEST=""; VIS="private"; DRY=0
@@ -72,6 +73,10 @@ run "cp \"$RUNTIME_SRC\"/*.sh \"$RUNTIME_DIR\"/"
 run "chmod +x \"$RUNTIME_DIR\"/*.sh"
 run "printf '%s\\n' \"$DEST\" > \"$RUNTIME_DIR/bridge.path\""
 
+echo "🧩 Installing shared hub → $HOME/.together-bridge (status + self-heal)"
+run "cp \"$HUB_SRC\"/*.sh \"$HOME/.together-bridge/\""
+run "chmod +x \"$HOME/.together-bridge\"/*.sh"
+
 echo "🙈 Wiring parent workspace to ignore $NAMEB/"
 run "touch \"$PARENT/.gitignore\""
 run "grep -qxF \"$NAMEB/\" \"$PARENT/.gitignore\" || echo \"$NAMEB/\" >> \"$PARENT/.gitignore\""
@@ -81,14 +86,20 @@ if [ -n "$PARTNER" ]; then
   run "gh api -X PUT \"repos/$OWNER/$NAME/collaborators/$PARTNER\" -f permission=push >/dev/null"
 fi
 
-echo "👀 Starting auto-push watcher (from local runtime)"
-run "nohup bash \"$RUNTIME_DIR/watch.sh\" >/dev/null 2>&1 &"
+echo "👀 Starting auto-push watcher + enabling self-heal on terminal open"
+run "bash \"$HOME/.together-bridge/ensure-watchers.sh\""
+run "bash \"$HOME/.together-bridge/hook.sh\" install"
 
 cat <<BLURB
 
 ✅ Bridge live: $REPO_URL   (data-only repo)
    Local folder : $DEST                      (drop files in $NAMEB/shared/)
    Local runtime: $RUNTIME_DIR   (refresh.sh · clear.sh · watch.sh)
+
+ℹ️  The auto-push watcher restarts itself whenever you open a terminal (it does
+   not survive a reboot on its own, but self-heals the next time you start work).
+   • Check it's running:  bash ~/.together-bridge/status.sh
+   • If it shows DOWN:     open a new terminal, or run the restart command it prints.
 
 ── Send this to your partner ──────────────────────────────────────
 You're invited to a Together Bridge (shared sync folder).

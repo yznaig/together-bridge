@@ -90,7 +90,8 @@ use; defer to it once a bridge exists. The operating scripts live locally at
 | `install.sh` | Registers `/together-bridge` into `~/.claude/` (Claude Code). |
 | `host-provision.sh` | Create + scaffold + push a new **data-only** bridge, install local runtime. |
 | `join.sh` | Join a partner's bridge; installs runtime from this tool (not the bridge). |
-| `runtime/` | The operating scripts (`watch`/`refresh`/`clear`), installed locally per bridge. |
+| `runtime/` | Per-bridge operating scripts (`watch`/`refresh`/`clear`), installed locally per bridge. |
+| `hub/` | Shared local helpers installed to `~/.together-bridge/` (`status`, `ensure-watchers`, `hook` — the watcher self-heal). |
 | `bridge-template/` | The **data-only** scaffold pushed to each new bridge repo. |
 | `command/together-bridge.md` | The `/together-bridge` slash command (Claude Code). |
 | `SECURITY.md` | Trust model — read before creating or joining a bridge. |

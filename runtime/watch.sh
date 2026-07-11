@@ -27,6 +27,7 @@ git config user.email >/dev/null 2>&1 || git config user.email "bridge@local"
 
 echo "👀 Watching $BRIDGE/shared — auto-push every ${INTERVAL}s when it changes. Ctrl-C to stop."
 while true; do
+  date +%s > "$SELF/.watch.heartbeat" 2>/dev/null || true   # liveness signal for `status`
   if [ -n "$(git status --porcelain shared/ 2>/dev/null)" ]; then
     sleep "$INTERVAL"                         # let a burst of files settle (debounce)
     if [ -n "$(git status --porcelain shared/ 2>/dev/null)" ]; then

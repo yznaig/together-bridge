@@ -31,6 +31,8 @@ if [ -f "$PARENT/.gitignore" ]; then
 fi
 
 [ -d "$BRIDGE" ] && rm -rf "$BRIDGE"
-echo "✅ You've left the bridge. Local clone removed."
-# remove this runtime dir last (safe: the running script is already in memory)
+# remove this runtime dir (safe: the running script is already in memory)
 rm -rf "$SELF"
+# if that was the last bridge, remove the shell self-heal hook too
+[ -f "$HOME/.together-bridge/hook.sh" ] && bash "$HOME/.together-bridge/hook.sh" remove-if-empty 2>/dev/null || true
+echo "✅ You've left the bridge. Local clone removed."

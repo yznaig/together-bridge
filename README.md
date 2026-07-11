@@ -40,7 +40,13 @@ The operating scripts live locally at `~/.together-bridge/<repo-name>/`.
 |---------|---------|--------------------------|
 | Share a file | put it in `shared/` (auto-pushes) | "share this on the bridge" |
 | Get updates | `~/.together-bridge/<repo-name>/refresh.sh` | "refresh the bridge" |
+| Check it's running | `~/.together-bridge/status.sh` | "is the bridge syncing?" |
 | Leave | `~/.together-bridge/<repo-name>/clear.sh` | "leave the bridge" |
+
+The auto-push watcher **self-heals**: it restarts whenever you open a terminal, so it
+comes back after a reboot or a closed terminal the next time you start working. It
+doesn't survive a reboot entirely on its own — run `status.sh` if unsure, and note that
+sharing *through your agent* always pushes immediately regardless of the watcher.
 
 ## How it stays out of your way
 
